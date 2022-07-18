@@ -1,9 +1,9 @@
 use nannou::prelude::*;
 
-const GRID_WIDTH: usize = 30;
-const GRID_HEIGHT: usize = 20;
-const PTS_PER_W: f32 = 40.0;
-const PTS_PER_H: f32 = 40.0;
+const GRID_WIDTH: usize = 200;
+const GRID_HEIGHT: usize = 200;
+const PTS_PER_W: f32 = 4.0;
+const PTS_PER_H: f32 = 4.0;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -15,12 +15,13 @@ struct Model {
 
 fn model(app: &App) -> Model {
     let mut grid = [false; GRID_WIDTH * GRID_HEIGHT];
-    grid[10] = true;
-    grid[210] = true;
-    // grid[18] = true;
-    // grid[381] = true;
-    // grid[383] = true;
-    // grid[398] = true;
+
+    for x in 0..GRID_WIDTH {
+        for y in 0..GRID_HEIGHT {
+            let index = x_y_to_index(x, y);
+            grid[index] = random();
+        }
+    }
 
     let _window = app
         .new_window()
@@ -32,32 +33,39 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    app.set_loop_mode(LoopMode::loop_ntimes(50));
+    // app.set_loop_mode(LoopMode::loop_ntimes(10));
     Model { grid }
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
-
     let mut next_grid = model.grid.clone();
 
     for x in 0..GRID_WIDTH {
         for y in 0..GRID_HEIGHT {
             let index = x_y_to_index(x, y);
-            // if model.grid[index] {
-            //     if (y + 1) < GRID_HEIGHT {
-            //         let index_p1 = x_y_to_index(x, y + 1);
-            //         println!("index = {index}, index_p1 = {index_p1}, x = {x}, y = {y}");
-            //         next_grid[index] = false;
-            //         next_grid[index_p1] = true;
-            //     }
-            // }
-            if model.grid[index] {
-                if (x + 1) < GRID_WIDTH {
-                    let index_p1 = x_y_to_index(x + 1, y);
-                    println!("index = {index}, index_p1 = {index_p1}, x = {x}, y = {y}");
-                    next_grid[index] = false;
-                    next_grid[index_p1] = true;
+
+            // count neighbours
+            let mut neighbour_count = 0;
+            let neighbours: [i32; 3] = [-1, 0, 1];
+            for dx in neighbours {
+                for dy in neighbours {
+                    let newx: i32 = x as i32 + dx;
+                    let newy: i32 = y as i32 + dy;
+                    if (newx < GRID_WIDTH as i32)
+                        && (newx >= 0)
+                        && (newy < GRID_HEIGHT as i32)
+                        && (newy >= 0)
+                    {
+                        neighbour_count +=
+                            model.grid[x_y_to_index(newx as usize, newy as usize)] as i32;
+                    }
                 }
+            }
+
+            if model.grid[index] && neighbour_count < 2 || neighbour_count > 3 {
+                next_grid[index] = false;
+            } else if !model.grid[index] && neighbour_count == 3 {
+                next_grid[index] = true;
             }
         }
     }
@@ -65,7 +73,6 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
-
     let window = app.main_window();
     let draw = app.draw();
     draw.background().color(BLACK);
