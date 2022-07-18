@@ -38,13 +38,17 @@ fn model(app: &App) -> Model {
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
-    let mut next_grid = model.grid.clone();
+    // let mut next_grid = model.grid.clone();
+    let mut next_grid = [false; GRID_WIDTH * GRID_HEIGHT];
 
     for x in 0..GRID_WIDTH {
         for y in 0..GRID_HEIGHT {
             let index = x_y_to_index(x, y);
 
             // count neighbours
+            // println!("----------------");
+            // println!("x = {x}, y = {y}");
+            // println!("----------------");
             let mut neighbour_count = 0;
             let neighbours: [i32; 3] = [-1, 0, 1];
             for dx in neighbours {
@@ -56,15 +60,20 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
                         && (newy < GRID_HEIGHT as i32)
                         && (newy >= 0)
                     {
-                        neighbour_count +=
-                            model.grid[x_y_to_index(newx as usize, newy as usize)] as i32;
+                        if !(dx == 0 && dy == 0) {
+                            neighbour_count +=
+                                model.grid[x_y_to_index(newx as usize, newy as usize)] as i32;
+                        }
                     }
+                    // println!("newx = {newx}, newy = {newy}");
                 }
             }
 
-            if model.grid[index] && neighbour_count < 2 || neighbour_count > 3 {
-                next_grid[index] = false;
-            } else if !model.grid[index] && neighbour_count == 3 {
+            if model.grid[index] {
+                if neighbour_count == 2 || neighbour_count == 3 {
+                    next_grid[index] = true;
+                }
+            } else if neighbour_count == 3 {
                 next_grid[index] = true;
             }
         }
