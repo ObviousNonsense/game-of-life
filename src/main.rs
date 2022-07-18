@@ -1,20 +1,21 @@
 use nannou::prelude::*;
 
-const GRID_WIDTH: usize = 200;
-const GRID_HEIGHT: usize = 200;
-const PTS_PER_W: f32 = 4.0;
-const PTS_PER_H: f32 = 4.0;
+const GRID_WIDTH: usize = 400;
+const GRID_HEIGHT: usize = 400;
+const PTS_PER_W: f32 = 1.0;
+const PTS_PER_H: f32 = 1.0;
 
 fn main() {
     nannou::app(model).update(update).run();
 }
 
 struct Model {
-    grid: [bool; GRID_WIDTH * GRID_HEIGHT],
+    // grid: [bool; GRID_WIDTH * GRID_HEIGHT],
+    grid: Vec<bool>,
 }
 
 fn model(app: &App) -> Model {
-    let mut grid = [false; GRID_WIDTH * GRID_HEIGHT];
+    let mut grid = vec![false; GRID_WIDTH * GRID_HEIGHT];
 
     for x in 0..GRID_WIDTH {
         for y in 0..GRID_HEIGHT {
@@ -39,7 +40,7 @@ fn model(app: &App) -> Model {
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
     // let mut next_grid = model.grid.clone();
-    let mut next_grid = [false; GRID_WIDTH * GRID_HEIGHT];
+    let mut next_grid = vec![false; GRID_WIDTH * GRID_HEIGHT];
 
     for x in 0..GRID_WIDTH {
         for y in 0..GRID_HEIGHT {
