@@ -1,5 +1,5 @@
 use nannou::prelude::*;
-use rayon::prelude::*;
+// use rayon::prelude::*;
 use std::time::Instant;
 // use std::iter::*;
 
@@ -43,7 +43,7 @@ struct Model {
 fn model(app: &App) -> Model {
     let mut grid = vec![Cell { alive: false }; GRID_WIDTH * GRID_HEIGHT];
 
-    grid.par_iter_mut().for_each(|cell| cell.randomize());
+    grid.iter_mut().for_each(|cell| cell.randomize());
 
     // for cell in grid.iter_mut() {
     //     cell.randomize();
@@ -85,7 +85,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     let mut next_grid = vec![Cell { alive: false }; GRID_WIDTH * GRID_HEIGHT];
 
     next_grid
-        .par_iter_mut()
+        .iter_mut()
         .zip(0..GRID_WIDTH * GRID_HEIGHT)
         .for_each(|(cell, index)| {
             let (x, y) = index_to_xy(index);
