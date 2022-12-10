@@ -1,7 +1,9 @@
 use nannou::prelude::*;
+// use rayon::prelude::*;
+// use std::iter::*;
 
-const GRID_WIDTH: usize = 400;
-const GRID_HEIGHT: usize = 400;
+const GRID_WIDTH: usize = 100;
+const GRID_HEIGHT: usize = 100;
 const PTS_PER_W: f32 = 1.0;
 const PTS_PER_H: f32 = 1.0;
 
@@ -42,41 +44,38 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     // let mut next_grid = model.grid.clone();
     let mut next_grid = vec![false; GRID_WIDTH * GRID_HEIGHT];
 
-    for x in 0..GRID_WIDTH {
-        for y in 0..GRID_HEIGHT {
-            let index = x_y_to_index(x, y);
-
-            // count neighbours
-            // println!("----------------");
-            // println!("x = {x}, y = {y}");
-            // println!("----------------");
-            let mut neighbour_count = 0;
-            let neighbours: [i32; 3] = [-1, 0, 1];
-            for dx in neighbours {
-                for dy in neighbours {
-                    let newx: i32 = x as i32 + dx;
-                    let newy: i32 = y as i32 + dy;
-                    if (newx < GRID_WIDTH as i32)
-                        && (newx >= 0)
-                        && (newy < GRID_HEIGHT as i32)
-                        && (newy >= 0)
-                    {
-                        if !(dx == 0 && dy == 0) {
-                            neighbour_count +=
-                                model.grid[x_y_to_index(newx as usize, newy as usize)] as i32;
-                        }
+    for index in 0..(GRID_WIDTH * GRID_HEIGHT) {
+        let (x, y) = index_to_xy(index);
+        // count neighbours
+        // println!("----------------");
+        // println!("x = {x}, y = {y}");
+        // println!("----------------");
+        let mut neighbour_count = 0;
+        let neighbours: [i32; 3] = [-1, 0, 1];
+        for dx in neighbours {
+            for dy in neighbours {
+                let newx: i32 = x as i32 + dx;
+                let newy: i32 = y as i32 + dy;
+                if (newx < GRID_WIDTH as i32)
+                    && (newx >= 0)
+                    && (newy < GRID_HEIGHT as i32)
+                    && (newy >= 0)
+                {
+                    if !(dx == 0 && dy == 0) {
+                        neighbour_count +=
+                            model.grid[x_y_to_index(newx as usize, newy as usize)] as i32;
                     }
-                    // println!("newx = {newx}, newy = {newy}");
                 }
+                // println!("newx = {newx}, newy = {newy}");
             }
+        }
 
-            if model.grid[index] {
-                if neighbour_count == 2 || neighbour_count == 3 {
-                    next_grid[index] = true;
-                }
-            } else if neighbour_count == 3 {
+        if model.grid[index] {
+            if neighbour_count == 2 || neighbour_count == 3 {
                 next_grid[index] = true;
             }
+        } else if neighbour_count == 3 {
+            next_grid[index] = true;
         }
     }
     model.grid = next_grid;
@@ -111,4 +110,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
 fn x_y_to_index(x: usize, y: usize) -> usize {
     let index = y * GRID_WIDTH + x;
     return index;
+}
+
+fn index_to_xy(i: usize) -> (usize, usize) {
+    let x = i % GRID_WIDTH;
+    let y = i / GRID_WIDTH;
+    (x, y)
 }
